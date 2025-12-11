@@ -87,10 +87,16 @@ public:
 	int32 CurrentMeshSetIndex = 0;
 
 	/**
-	 * @brief The number of instances of the mesh to spawn when the function is called.
+	 * @brief Minimum number of instances to spawn when the function is called.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning Settings", meta = (ClampMin = "1"))
-	int32 SpawnCount = 10;
+	int32 MinSpawnCount = 5;
+
+	/**
+	 * @brief Maximum number of instances to spawn when the function is called.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning Settings", meta = (ClampMin = "1"))
+	int32 MaxSpawnCount = 15;
 
 	/**
 	 * @brief Minimum uniform scale applied to the spawned mesh.
@@ -144,7 +150,7 @@ private:
 
     /** Private pointer to the Dynamic Material Instance for runtime Decal updates. */
     UPROPERTY()
-    UMaterialInstanceDynamic* DecalMaterialInstance; // NEW: Pointer to the Decal's MID
+    UMaterialInstanceDynamic* DecalMaterialInstance; 
 
     /** Stores the normal (direction) of the surface hit by the camera trace. */
     FVector GroundNormal = FVector::UpVector; 

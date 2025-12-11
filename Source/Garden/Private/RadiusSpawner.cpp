@@ -41,7 +41,7 @@ void ARadiusSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-    // --- NEW: Create Dynamic Material Instance for the Decal ---
+    // --- Create Dynamic Material Instance for the Decal ---
     if (DecalMaterial)
     {
         DecalMaterialInstance = UMaterialInstanceDynamic::Create(DecalMaterial, this);
@@ -68,14 +68,12 @@ void ARadiusSpawner::Tick(float DeltaTime)
     // 3. Set the decal size based on the SpawningRadius
     RadiusDecalComponent->DecalSize = FVector(SpawningRadius * 0.5f, SpawningRadius, SpawningRadius);
     
-    // --- NEW: Update Material Parameters in real-time ---
+    // --- Update Material Parameters in real-time ---
     if (DecalMaterialInstance)
     {
-        // Update the material parameters using the Blueprint-editable properties
         DecalMaterialInstance->SetScalarParameterValue(DecalRadiusParameterName, DecalRadiusScale);
         DecalMaterialInstance->SetScalarParameterValue(DecalSharpnessParameterName, DecalSharpness);
     }
-    // ----------------------------------------------------
 }
 
 
@@ -194,6 +192,14 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
 	}
     // --------------------------------------------------------------------------
 
+    // --- Calculate Actual Spawn Count (NEW) ---
+    const int32 ActualSpawnCount = FMath::RandRange(MinSpawnCount, MaxSpawnCount);
+    if (ActualSpawnCount <= 0)
+    {
+        UE_LOG(LogTemp, Log, TEXT("ARadiusSpawner: Actual Spawn Count is 0. Aborting spawn."));
+        return;
+    }
+    
     // --- Get Dynamic Spawn Center and Camera Info ---
     const FVector GroundCenterLocation = CalculateGroundCenterLocation();
     
@@ -206,8 +212,8 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
     // --------------------------------------------------------------------------
 
 
-	// 2. Loop and spawn the requested number of meshes
-	for (int32 i = 0; i < SpawnCount; ++i)
+	// 2. Loop and spawn the calculated number of meshes
+	for (int32 i = 0; i < ActualSpawnCount; ++i)
 	{
 		// --- Mesh Selection Logic (uses ActiveMeshSet) ---
 		const int32 RandomMeshIndex = FMath::RandRange(0, ActiveMeshSet.Num() - 1);
@@ -232,7 +238,7 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
 		const FVector BaseTraceLocation(
             GroundCenterLocation.X + RandX, 
             GroundCenterLocation.Y + RandY, 
-            GroundCenterLocation.Z + 1000.0f
+            GroundCenterLocation.Z + 1000.0f // Safe Z to start the trace high
         );
 
 		// --- Line Trace to Find Ground Z (Projection) for the RANDOMIZED spot ---
@@ -311,7 +317,8 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
                 SpawnedMeshes.Add(NewMeshComp);
             }
 		}
+        // If the trace failed, the loop continues to the next iteration (i++), skipping the spawn.
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("ARadiusSpawner: Successfully spawned %d meshes."), SpawnCount);
+	UE_LOG(LogTemp, Log, TEXT("ARadiusSpawner: Successfully spawned %d meshes."), ActualSpawnCount);
 }
