@@ -7,28 +7,26 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/DecalComponent.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "RadiusSpawner.generated.h"
 
-// --- NEW USTRUCT TO FIX UHT NESTED ARRAY ERROR ---
-// This struct wraps the inner array so UHT can serialize the TArray of TArray.
+// --- USTRUCT TO FIX UHT NESTED ARRAY ERROR ---
 USTRUCT(BlueprintType)
 struct FMeshSet
 {
-	GENERATED_BODY() // <-- This placement resolves the error C++ compiler requires
-	// UHT requires this macro to be the absolute first member declared after the opening brace.
+	GENERATED_BODY() 
 
 	/** The array of meshes belonging to this specific set (e.g., 'trees', 'rocks', etc.). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh Set")
 	TArray<UStaticMesh*> Meshes;
 };
-// -----------------------------------------------------
 
 /**
  * An Actor class designed to spawn multiple copies of a specified Static Mesh
  * within a defined spherical radius centered on the Actor's location.
  */
 UCLASS(Blueprintable, BlueprintType)
-class ARadiusSpawner : public AActor
+class GARDEN_API ARadiusSpawner : public AActor
 {
 	GENERATED_BODY()
 	
@@ -47,29 +45,58 @@ public:
 	float SpawningRadius = 500.0f;
 
     /**
-	 * @brief Material used to project the visualization circle onto the ground (must be a decal material).
+	 * @brief The material used to project the cursor visualization circle onto the ground (must be a decal material).
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning Settings")
 	UMaterialInterface* DecalMaterial;
+
+    /**
+	 * @brief The material used to create a Material Instance Dynamic (MID) for each spawned mesh.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning Settings")
+	UMaterialInterface* NewMeshesMaterial;
+
+    // --- NEW DECAL VISUALIZATION PROPERTIES ---
+
+    /**
+	 * @brief Material parameter controlling the outer edge of the decal circle mask (usually 1.0 to 5.0).
+	 * Must match the Scalar Parameter name in the Decal Material (e.g., 'Radius').
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Decal Appearance")
+	float DecalRadiusScale = 2.0f;
+
+    /**
+	 * @brief Material parameter controlling the sharpness/falloff of the decal mask (e.g., 5.0 to 50.0).
+	 * Must match the Scalar Parameter name in the Decal Material (e.g., 'Sharpness').
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Decal Appearance")
+	float DecalSharpness = 10.0f;
+    
+    // ------------------------------------------
 
 	/**
 	 * @brief Array of Mesh Sets. Each set (FMeshSet) contains an inner array of meshes.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh Sets")
-	TArray<FMeshSet> MeshSets; // <-- Corrected type
+	TArray<FMeshSet> MeshSets;
 
     /**
 	 * @brief Index of the Mesh Set currently active for spawning.
-	 * Use SetMeshSetIndex or CycleMeshSetIndex to change this.
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh Sets")
 	int32 CurrentMeshSetIndex = 0;
 
 	/**
-	 * @brief The number of instances of the mesh to spawn when the function is called.
+	 * @brief Minimum number of instances to spawn when the function is called.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning Settings", meta = (ClampMin = "1"))
-	int32 SpawnCount = 10;
+	int32 MinSpawnCount = 5;
+
+	/**
+	 * @brief Maximum number of instances to spawn when the function is called.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning Settings", meta = (ClampMin = "1"))
+	int32 MaxSpawnCount = 15;
 
 	/**
 	 * @brief Minimum uniform scale applied to the spawned mesh.
@@ -82,6 +109,12 @@ public:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning Settings", meta = (ClampMin = "0.01"))
 	float MaxScale = 1.2f;
+
+    /**
+	 * @brief Stores references to all spawned Static Mesh Components.
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Spawning Output")
+	TArray<UStaticMeshComponent*> SpawnedMeshes;
 
     // --- Control Methods ---
 
@@ -102,8 +135,6 @@ public:
 
 	/**
 	 * @brief Spawns the specified meshes randomly within the SpawningRadius.
-	 * @param bDestroyExisting If true, any meshes previously spawned by this function will be destroyed first.
-	 * This method is Blueprint Callable.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	void SpawnMeshesInRadius(bool bDestroyExisting = false);
@@ -117,15 +148,13 @@ private:
     UPROPERTY(VisibleAnywhere, Category = "Visualization")
     UDecalComponent* RadiusDecalComponent;
 
-    /** Stores the calculated center point for both spawning and visualization. */
-    FVector DynamicSpawnCenter = FVector::ZeroVector;
+    /** Private pointer to the Dynamic Material Instance for runtime Decal updates. */
+    UPROPERTY()
+    UMaterialInstanceDynamic* DecalMaterialInstance; 
+
+    /** Stores the normal (direction) of the surface hit by the camera trace. */
+    FVector GroundNormal = FVector::UpVector; 
 
     /** Helper function to calculate the camera-projected ground center. */
     FVector CalculateGroundCenterLocation();
-    
-	/**
-	 * @brief Stores references to all spawned Static Mesh Components
-	 * so they can be cleaned up later if requested.
-	 */
-	TArray<UStaticMeshComponent*> SpawnedMeshes;
 };
