@@ -8,10 +8,15 @@
 #include "Engine/World.h" 
 #include "Kismet/GameplayStatics.h" 
 #include "Components/DecalComponent.h"
+#include "Materials/MaterialInstanceDynamic.h" 
 #include "DrawDebugHelpers.h" 
 
 // Define the tag we will use to filter hits on the terrain
 const FName GroundTag("Ground");
+
+// Define the Material Parameter Names
+const FName DecalRadiusParameterName("Radius"); // Must match the Scalar Parameter name in your Decal Material
+const FName DecalSharpnessParameterName("Sharpness"); // Must match the Scalar Parameter name in your Decal Material
 
 // Sets default values
 ARadiusSpawner::ARadiusSpawner()
@@ -36,10 +41,14 @@ void ARadiusSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-    // Set the Decal Material here once, if a default is provided in the Blueprint
+    // --- NEW: Create Dynamic Material Instance for the Decal ---
     if (DecalMaterial)
     {
-        RadiusDecalComponent->SetDecalMaterial(DecalMaterial);
+        DecalMaterialInstance = UMaterialInstanceDynamic::Create(DecalMaterial, this);
+        if (DecalMaterialInstance)
+        {
+            RadiusDecalComponent->SetDecalMaterial(DecalMaterialInstance);
+        }
     }
 }
 
@@ -48,16 +57,25 @@ void ARadiusSpawner::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    // 1. Calculate the center based on camera focus
-    DynamicSpawnCenter = CalculateGroundCenterLocation();
+    // 1. Calculate the center based on camera focus (updates GroundNormal)
+    FVector DynamicSpawnCenter = CalculateGroundCenterLocation();
     
-    // 2. Position the decal at the ground center
+    // 2. Position the decal and align its rotation with the ground normal
     // We add a small offset (5.0f) to ensure the decal is rendered just above the hit surface.
     RadiusDecalComponent->SetWorldLocation(DynamicSpawnCenter + FVector(0.0f, 0.0f, 5.0f)); 
+    RadiusDecalComponent->SetWorldRotation(GroundNormal.Rotation()); 
     
     // 3. Set the decal size based on the SpawningRadius
-    // DecalSize.X is projection depth (keep constant). Y and Z are the radius size.
     RadiusDecalComponent->DecalSize = FVector(SpawningRadius * 0.5f, SpawningRadius, SpawningRadius);
+    
+    // --- NEW: Update Material Parameters in real-time ---
+    if (DecalMaterialInstance)
+    {
+        // Update the material parameters using the Blueprint-editable properties
+        DecalMaterialInstance->SetScalarParameterValue(DecalRadiusParameterName, DecalRadiusScale);
+        DecalMaterialInstance->SetScalarParameterValue(DecalSharpnessParameterName, DecalSharpness);
+    }
+    // ----------------------------------------------------
 }
 
 
@@ -66,6 +84,7 @@ FVector ARadiusSpawner::CalculateGroundCenterLocation()
 {
     // Default to the spawner's location if trace fails
     FVector CenterResult = GetActorLocation(); 
+    GroundNormal = FVector::UpVector; // Reset normal to flat up vector
 
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 
@@ -76,7 +95,6 @@ FVector ARadiusSpawner::CalculateGroundCenterLocation()
 
         FHitResult CenterHitResult;
         
-        // Define a long trace distance forward from the camera
         const float CenterTraceDistance = 10000.0f; 
         const FVector TraceStart = CameraLocation;
         const FVector TraceEnd = CameraLocation + (CameraForwardVector * CenterTraceDistance);
@@ -84,7 +102,6 @@ FVector ARadiusSpawner::CalculateGroundCenterLocation()
         FCollisionQueryParams QueryParams;
         QueryParams.AddIgnoredActor(this);
 
-        // Perform the line trace forward from the camera
         bool bHitCenter = GetWorld()->LineTraceSingleByChannel(
             CenterHitResult,
             TraceStart,
@@ -93,11 +110,12 @@ FVector ARadiusSpawner::CalculateGroundCenterLocation()
             QueryParams
         );
 
-        // Filter by Tag: The new center must hit the tagged ground
+        // Filter by Tag and capture normal
         if (bHitCenter && CenterHitResult.GetActor() && CenterHitResult.GetActor()->ActorHasTag(GroundTag))
         {
-            // The new center of the spawn radius is the location where the camera's trace hit the ground
             CenterResult = CenterHitResult.Location;
+            // Capture the ground normal for decal alignment
+            GroundNormal = CenterHitResult.ImpactNormal; 
         }
     }
     
@@ -115,7 +133,6 @@ void ARadiusSpawner::SetMeshSetIndex(int32 NewIndex)
         return;
     }
 
-    // Clamp the index to the valid range [0, MeshSets.Num() - 1]
     CurrentMeshSetIndex = FMath::Clamp(NewIndex, 0, MeshSets.Num() - 1);
     
     if (CurrentMeshSetIndex != NewIndex)
@@ -137,7 +154,6 @@ void ARadiusSpawner::CycleMeshSetIndex()
         return;
     }
 
-    // Increment index and use the modulo operator (%) to handle wrap-around back to 0
     CurrentMeshSetIndex = (CurrentMeshSetIndex + 1) % MeshSets.Num();
     
     UE_LOG(LogTemp, Log, TEXT("ARadiusSpawner: Cycled to next Mesh Set. New Index: %d."), CurrentMeshSetIndex);
@@ -168,12 +184,9 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
         return;
     }
 
-    // Safely get the current set, ensuring the index is within bounds
     const int32 SafeIndex = FMath::Clamp(CurrentMeshSetIndex, 0, MeshSets.Num() - 1);
-    // Access the inner TArray<UStaticMesh*> via the .Meshes member of the FMeshSet struct
     const TArray<UStaticMesh*>& ActiveMeshSet = MeshSets[SafeIndex].Meshes; 
     
-    // Safety check for the inner array
 	if (ActiveMeshSet.Num() == 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ARadiusSpawner: Active Mesh Set (Index %d) is empty. Aborting spawn."), SafeIndex);
@@ -181,9 +194,7 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
 	}
     // --------------------------------------------------------------------------
 
-
     // --- Get Dynamic Spawn Center and Camera Info ---
-    // Calculate the center point for spawning (use the location calculated in Tick)
     const FVector GroundCenterLocation = CalculateGroundCenterLocation();
     
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -218,11 +229,10 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
 		const float RandY = FMath::Sin(AngleInRadians) * RandomDistance;
 
 		// Calculate the base horizontal location for the trace
-		// We use a fixed high Z value (1000.0f) for the vertical trace start.
 		const FVector BaseTraceLocation(
             GroundCenterLocation.X + RandX, 
             GroundCenterLocation.Y + RandY, 
-            GroundCenterLocation.Z + 1000.0f // Safe Z to start the trace high
+            GroundCenterLocation.Z + 1000.0f
         );
 
 		// --- Line Trace to Find Ground Z (Projection) for the RANDOMIZED spot ---
@@ -243,7 +253,7 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
 			QueryParams
 		);
 
-		// --- FIX: Only proceed if the trace hits the Taggable Ground ---
+		// --- Check for valid hit on Taggable Ground ---
 		if (bHit && HitResult.GetActor() && HitResult.GetActor()->ActorHasTag(GroundTag))
 		{
 			// Add a small offset (2.0f) to ensure the mesh pivot is just above the ground surface.
@@ -275,26 +285,32 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
             UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(this);
             if (NewMeshComp)
             {
-                // FIX: Component is owned by 'this' but NOT attached to hierarchy, ensuring World Space position.
                 NewMeshComp->RegisterComponent();
 
-                // Set the randomly selected mesh asset
                 NewMeshComp->SetStaticMesh(SelectedMesh);
+                
+                // --- CREATE AND APPLY DYNAMIC MATERIAL INSTANCE (MID) ---
+                if (NewMeshesMaterial)
+                {
+                    UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(NewMeshesMaterial, NewMeshComp);
+                    if (DynamicMaterial)
+                    {
+                        NewMeshComp->SetMaterial(0, DynamicMaterial);
+                    }
+                }
+                // -------------------------------------------------------------
 
-                // Set its world transform
                 NewMeshComp->SetWorldLocationAndRotation(SpawnLocation, SpawnRotation);
                 
-                // Set the random uniform scale
                 NewMeshComp->SetRelativeScale3D(SpawnScale);
                 
                 NewMeshComp->SetSimulatePhysics(false); 
                 NewMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
                 
-                // 4. Store the reference for potential destruction later
+                // 4. Store the reference for Blueprint access and cleanup
                 SpawnedMeshes.Add(NewMeshComp);
             }
 		}
-        // If the trace failed, the loop continues to the next iteration (i++), skipping the spawn.
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("ARadiusSpawner: Successfully spawned %d meshes."), SpawnCount);
