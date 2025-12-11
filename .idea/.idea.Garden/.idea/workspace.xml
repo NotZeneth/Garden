@@ -12,21 +12,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1c974b2f-bd50-4fcc-ac08-836a16331bf0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Content/Custom/Maps/L_SpawnTest.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Maps/L_SpawnTest.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Material/M_Seasons.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Garden/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Garden/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Custom/Art/M_Green.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Art/M_Green.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Custom/Maps/L_Demo_Test.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Maps/L_Demo_Test.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Custom/Maps/L_TestGameplay.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Maps/L_TestGameplay.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Custom/Maps/L_TestInputs.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Maps/L_TestInputs.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Custom/Materials/M_Seasons.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Materials/M_Seasons.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Custom/Player/BP_Player.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Player/BP_Player.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/VRS_LowPolyNatureEssentials/Materials/M_BaseMaterial.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/VRS_LowPolyNatureEssentials/Materials/M_BaseMaterial.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 2
-}]]></component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Source/Garden/MyBlueprintFunctionLibrary.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Garden/MyBlueprintFunctionLibrary.h" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="35pUroCZGWajFrCAn9FdNlc6HFY" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -34,9 +47,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "C/C++ Project.Garden.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "painting",
+    "git-widget-placeholder": "Commingle",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -132,7 +146,10 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
       <method v="2" />
     </configuration>
   </component>
@@ -144,6 +161,7 @@
       <option name="presentableId" value="Default" />
       <updated>1763806719803</updated>
       <workItem from="1763806722471" duration="5640000" />
+      <workItem from="1765489321087" duration="2670000" />
     </task>
     <servers />
   </component>
