@@ -12,10 +12,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1c974b2f-bd50-4fcc-ac08-836a16331bf0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Content/Custom/Art/M_Green.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Art/M_Green.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Custom/Art/M_Meshes.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Art/M_Meshes.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Garden/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Garden/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Custom/Materials/M_Seasons.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Custom/Materials/M_Seasons.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/VRS_LowPolyNatureEssentials/Materials/M_Season_Func.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/VRS_LowPolyNatureEssentials/Materials/M_Season_Func.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,8 +27,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Source/Garden/MyBlueprintFunctionLibrary.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Source/Garden/MyBlueprintFunctionLibrary.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Garden/MyBlueprintFunctionLibrary.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Garden/MyBlueprintFunctionLibrary.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Garden/Private/RadiusSpawner.cpp" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -41,20 +40,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "C/C++ Project.Garden.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Commingle",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;C/C++ Project.Garden.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Commingle&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="C/C++ Project.Garden">
     <configuration name="Garden" type="CppProject" factoryName="C++ Project">
       <configuration_1 setup="1">
@@ -157,7 +156,8 @@
       <option name="presentableId" value="Default" />
       <updated>1763806719803</updated>
       <workItem from="1763806722471" duration="5640000" />
-      <workItem from="1765489321087" duration="9603000" />
+      <workItem from="1765489321087" duration="9808000" />
+      <workItem from="1765524231968" duration="535000" />
     </task>
     <servers />
   </component>
