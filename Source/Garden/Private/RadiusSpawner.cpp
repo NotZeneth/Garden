@@ -2,6 +2,7 @@
 
 #include "RadiusSpawner.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetMaterialLibrary.h"	
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/PlayerController.h" 
@@ -302,6 +303,22 @@ void ARadiusSpawner::SpawnMeshesInRadius(bool bDestroyExisting)
                     if (DynamicMaterial)
                     {
                         NewMeshComp->SetMaterial(0, DynamicMaterial);
+
+                    	if (SeasonMPC)
+                    	{
+                    		// 1. Read the CURRENT global season values from the MPC
+                    		float Win = UKismetMaterialLibrary::GetScalarParameterValue(this, SeasonMPC, FName("IsWinter"));
+                    		float Spr = UKismetMaterialLibrary::GetScalarParameterValue(this, SeasonMPC, FName("IsSpring"));
+                    		float Sum = UKismetMaterialLibrary::GetScalarParameterValue(this, SeasonMPC, FName("IsSummer"));
+                    		float Fal = UKismetMaterialLibrary::GetScalarParameterValue(this, SeasonMPC, FName("IsFall"));
+
+                    		// 2. Write them permanently into this specific mesh's material
+                    		// Note: These names ("IsWinter", etc.) must match the Scalar Parameters inside your Material Graph
+                    		DynamicMaterial->SetScalarParameterValue(FName("IsWinter"), Win);
+                    		DynamicMaterial->SetScalarParameterValue(FName("IsSpring"), Spr);
+                    		DynamicMaterial->SetScalarParameterValue(FName("IsSummer"), Sum);
+                    		DynamicMaterial->SetScalarParameterValue(FName("IsFall"), Fal);
+                    	}
                     }
                 }
                 // -------------------------------------------------------------

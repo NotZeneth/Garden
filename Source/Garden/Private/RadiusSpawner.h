@@ -37,6 +37,9 @@ public:
     // Enable Tick to constantly update the visualization location
     virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seasons")
+	UMaterialParameterCollection* SeasonMPC; 
+
 	/**
 	 * @brief The radius around the Actor's location within which meshes will be spawned.
 	 * This value is Blueprint Editable.
